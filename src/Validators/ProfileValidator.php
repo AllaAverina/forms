@@ -2,7 +2,6 @@
 
 namespace Forms\Validators;
 
-use Forms\Models\User;
 use Forms\Models\UserGateway;
 
 class ProfileValidator
@@ -14,13 +13,13 @@ class ProfileValidator
         $this->gateway = $gateway;
     }
 
-    public function validate(array $userdata, int $id): array
+    public function validate(int $id, string $name, string $phone, string $email): array
     {
         $errors = [];
 
-        $errors['name'] = $this->validateName($userdata['name']);
-        $errors['phone'] = $this->validatePhone($userdata['phone'], $id);
-        $errors['email'] = $this->validateEmail($userdata['email'], $id);
+        $errors['name'] = $this->validateName($name);
+        $errors['phone'] = $this->validatePhone($phone, $id);
+        $errors['email'] = $this->validateEmail($email, $id);
 
         return $errors;
     }

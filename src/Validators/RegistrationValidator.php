@@ -13,15 +13,15 @@ class RegistrationValidator
         $this->gateway = $gateway;
     }
 
-    public function validate(array $userdata): array
+    public function validate(string $name, string $phone, string $email, string $password, string $confirmPassword): array
     {
         $errors = [];
 
-        $errors['name'] = $this->validateName($userdata['name']);
-        $errors['phone'] = $this->validatePhone($userdata['phone']);
-        $errors['email'] = $this->validateEmail($userdata['email']);
-        $errors['password'] = $this->validatePassword($userdata['password']);
-        $errors['confirmPassword'] = $this->confirmPassword($userdata['password'], $userdata['confirmPassword']);
+        $errors['name'] = $this->validateName($name);
+        $errors['phone'] = $this->validatePhone($phone);
+        $errors['email'] = $this->validateEmail($email);
+        $errors['password'] = $this->validatePassword($password);
+        $errors['confirmPassword'] = $this->confirmPassword($password, $confirmPassword);
 
         return $errors;
     }

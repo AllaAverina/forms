@@ -13,10 +13,17 @@ use Forms\Validators\PasswordValidator;
 class ProfileController
 {
     protected $gateway;
+    protected $profileValidator;
+    protected $passwordValidator;
 
-    public function __construct(UserGateway $gateway)
-    {
+    public function __construct(
+        UserGateway $gateway,
+        ProfileValidator $profileValidator,
+        PasswordValidator $passwordValidator,
+    ) {
         $this->gateway = $gateway;
+        $this->profileValidator = $profileValidator;
+        $this->passwordValidator = $passwordValidator;
     }
 
     private function checkAuth(): object
@@ -54,41 +61,42 @@ class ProfileController
         ]);
     }
 
-    public function update(ProfileValidator $validator): void
+    public function update(): void
     {
         if (!Token::checkToken()) {
-            Session::setErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
+            Session::addErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
             Route::back();
         };
 
+        $user = $this->checkAuth();
+
         $userdata = [
+            'id' => $user->getId(),
             'name' => trim(strval($_POST['name'] ?? '')),
             'phone' => preg_replace('/[()\-_ ]/', '', strval($_POST['phone'] ?? '')),
             'email' => trim(strval($_POST['email'] ?? '')),
         ];
 
-        $user = $this->checkAuth();
-
-        $errors = $validator->validate($userdata, $user->getId());
+        $errors = $this->profileValidator->validate(...$userdata);
 
         if (array_filter($errors)) {
-            Session::setErrors($errors);
+            Session::addErrors($errors);
             Route::back();
         }
 
         $user->fill($userdata);
         $this->gateway->save($user);
 
-        Session::setLogin($user->getEmail());
-        Session::setMessage('profile', 'Сохранено');
+        Session::addLogin($user->getEmail());
+        Session::addMessage('profile', 'Сохранено');
 
         Route::back();
     }
 
-    public function updatePassword(PasswordValidator $validator): void
+    public function updatePassword(): void
     {
         if (!Token::checkToken()) {
-            Session::setErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
+            Session::addErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
             Route::back();
         };
 
@@ -99,22 +107,22 @@ class ProfileController
         $user = $this->checkAuth();
 
         if (!password_verify($currentPassword, $user->getPassword())) {
-            Session::setErrors(['currentPassword' => 'Неверный пароль']);
+            Session::addErrors(['currentPassword' => 'Неверный пароль']);
             Route::back();
         }
 
-        $errors = $validator->validate($currentPassword, $password, $confirmPassword);
+        $errors = $this->passwordValidator->validate($currentPassword, $password, $confirmPassword);
 
         if (array_filter($errors)) {
-            Session::setErrors($errors);
+            Session::addErrors($errors);
             Route::back();
         }
 
         $user->setPassword($password);
         $this->gateway->save($user);
 
-        Session::setLogin($user->getEmail());
-        Session::setMessage('password', 'Сохранено');
+        Session::addLogin($user->getEmail());
+        Session::addMessage('password', 'Сохранено');
 
         Route::back();
     }
@@ -122,7 +130,7 @@ class ProfileController
     public function destroy(): void
     {
         if (!Token::checkToken()) {
-            Session::setErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
+            Session::addErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
             Route::back();
         };
 
@@ -130,7 +138,7 @@ class ProfileController
         $password = trim(strval($_POST['password'] ?? ''));
 
         if (!password_verify($password, $user->getPassword())) {
-            Session::setErrors(['password' => 'Неверный пароль']);
+            Session::addErrors(['password' => 'Неверный пароль']);
             Route::back();
         }
 

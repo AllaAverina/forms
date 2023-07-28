@@ -11,6 +11,7 @@
 * [MySQL](https://www.mysql.com/)
 * [Nginx](https://nginx.org/)
 * [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/)
+* [Google reCAPTCHA v2](https://developers.google.com/recaptcha/docs/display)
 
 ## Установка с помощью Docker
 1. Клонируйте этот репозиторий:
@@ -25,8 +26,9 @@ docker compose up -d --build
 ```sh
 composer dump-autoload
 ```
-4. Откройте в браузере http://localhost:8000/
-5. Для остановки контейнеров используйте:
+4. Установите ключи [reCAPTCHA v2](https://www.google.com/recaptcha/admin/create) в файле config/config.php:
+5. Откройте в браузере http://localhost:8000/
+6. Для остановки контейнеров используйте:
 ```sh
 docker compose down
 ```

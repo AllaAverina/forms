@@ -14,10 +14,20 @@ use Forms\Validators\LoginValidator;
 class AuthController
 {
     protected $gateway;
+    protected $registrationValidator;
+    protected $loginValidator;
+    protected $captchaConfig;
 
-    public function __construct(UserGateway $gateway)
-    {
+    public function __construct(
+        UserGateway $gateway,
+        RegistrationValidator $registrationValidator,
+        LoginValidator $loginValidator,
+        array $captchaConfig
+    ) {
         $this->gateway = $gateway;
+        $this->registrationValidator = $registrationValidator;
+        $this->loginValidator = $loginValidator;
+        $this->captchaConfig = $captchaConfig;
     }
 
     public function showRegistrationForm(): void
@@ -27,10 +37,10 @@ class AuthController
         ]);
     }
 
-    public function register(RegistrationValidator $validator): void
+    public function register(): void
     {
         if (!Token::checkToken()) {
-            Session::setErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
+            Session::addErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
             Route::back();
         };
 
@@ -42,11 +52,11 @@ class AuthController
             'confirmPassword' => trim(strval($_POST['confirm_password'] ?? '')),
         ];
 
-        $errors = $validator->validate($userdata);
+        $errors = $this->registrationValidator->validate(...$userdata);
 
         if (array_filter($errors)) {
-            Session::setInputValues($userdata);
-            Session::setErrors($errors);
+            Session::addInputValues($userdata);
+            Session::addErrors($errors);
             Route::back();
         }
 
@@ -54,7 +64,7 @@ class AuthController
         $user->fill($userdata);
         $this->gateway->save($user);
 
-        Session::setLogin($user->getEmail());
+        Session::addLogin($user->getEmail());
         Route::redirect('/profile');
     }
 
@@ -62,44 +72,48 @@ class AuthController
     {
         View::render('auth/login', [
             'title' => 'Вход',
+            'site_key' => $this->captchaConfig['site_key'],
         ]);
     }
 
-    public function login(LoginValidator $validator): void
+    public function login(): void
     {
         if (!Token::checkToken()) {
-            Session::setErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
+            Session::addErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
             Route::back();
         };
 
-        $this->checkCaptcha();
+        if (!$this->checkCaptcha()) {
+            Session::addErrors(['recaptcha' => 'Капча не пройдена']);
+            Route::back();
+        }
 
         $login = trim(strval($_POST['login'] ?? ''));
         $password = trim(strval($_POST['password'] ?? ''));
 
-        $errors = $validator->validate($login, $password);
+        $errors = $this->loginValidator->validate($login,  $password);
 
         if (array_filter($errors)) {
-            Session::setInputValues(['login' => $login]);
-            Session::setErrors($errors);
+            Session::addInputValues(['login' => $login]);
+            Session::addErrors($errors);
             Route::back();
         }
 
         $user = $this->gateway->findByLogin($login);
 
         if ($user && password_verify($password, $user->getPassword())) {
-            Session::setLogin($login);
+            Session::addLogin($login);
             Route::redirect('/profile');
         }
 
-        Session::setErrors(['login' => 'Неверный логин или пароль']);
+        Session::addErrors(['login' => 'Неверный логин или пароль']);
         Route::back();
     }
 
     public function logout(): void
     {
         if (!Token::checkToken()) {
-            Session::setErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
+            Session::addErrors(['token' => 'Возникла ошибка! Пожалуйста, повторите отправку']);
             Route::back();
         };
 
@@ -107,17 +121,16 @@ class AuthController
         Route::redirect('/');
     }
 
-    private function checkCaptcha(): void
+    private function checkCaptcha(): bool
     {
         $recaptcha = $_POST['g-recaptcha-response'] ?? '';
 
         if (empty($recaptcha)) {
-            Session::setErrors(['recaptcha' => 'Капча не пройдена']);
-            Route::back();
+            return false;
         }
 
         $query = array(
-            'secret' => '6Lc-KFYnAAAAAPdSAKbP26-3nydrMuZHtv9L09iw',
+            'secret' => $this->captchaConfig['secret_key'],
             'response' => $recaptcha,
             'remoteip' => $_SERVER['REMOTE_ADDR']
         );
@@ -127,12 +140,13 @@ class AuthController
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
-        $data = json_decode(curl_exec($ch), $assoc = true);
+        $data = json_decode(curl_exec($ch), true);
         curl_close($ch);
 
         if (!$data['success']) {
-            Session::setErrors(['recaptcha' => 'Капча не пройдена']);
-            Route::back();
+            return false;
         }
+
+        return true;
     }
 }

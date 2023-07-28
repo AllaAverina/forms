@@ -31,14 +31,8 @@ class Router
         $action = $route['action'];
         $params = $route['params'];
 
-        $classes = $route['classes'] ?? [];
-        $objects = [];
-        foreach ($classes as $class) {
-            $objects[] = $this->container->get($class);
-        }
-
         $controller = $this->container->get($controller);
-        $controller->$action(...array_merge($objects, $params));
+        $controller->$action(...$params);
     }
 
     private function getRoute(): ?array

@@ -13,14 +13,14 @@ return [
         '/' => ['controller' => MainController::class, 'action' => 'index'],
     ],
     'POST' => [
-        '/register' => ['controller' => AuthController::class, 'action' => 'register', 'classes' => [Forms\Validators\RegistrationValidator::class]],
-        '/login' => ['controller' => AuthController::class, 'action' => 'login', 'classes' => [Forms\Validators\LoginValidator::class]],
+        '/register' => ['controller' => AuthController::class, 'action' => 'register',],
+        '/login' => ['controller' => AuthController::class, 'action' => 'login',],
         '/logout' => ['controller' => AuthController::class, 'action' => 'logout'],
     ],
     'PUT' => [],
     'PATCH' => [
-        '/profile/edit' => ['controller' => ProfileController::class, 'action' => 'update', 'classes' => [Forms\Validators\ProfileValidator::class]],
-        '/profile/password/edit' => ['controller' => ProfileController::class, 'action' => 'updatePassword', 'classes' => [Forms\Validators\PasswordValidator::class]],
+        '/profile/edit' => ['controller' => ProfileController::class, 'action' => 'update',],
+        '/profile/password/edit' => ['controller' => ProfileController::class, 'action' => 'updatePassword',],
     ],
     'DELETE' => [
         '/profile/delete' => ['controller' => ProfileController::class, 'action' => 'destroy'],

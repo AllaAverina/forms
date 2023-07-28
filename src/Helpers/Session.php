@@ -11,7 +11,7 @@ class Session
         }
     }
 
-    public static function setInputValues(array $values): void
+    public static function addInputValues(array $values): void
     {
         $_SESSION['values'] = $values;
     }
@@ -24,7 +24,7 @@ class Session
         return $values;
     }
 
-    public static function setErrors(array $errors): void
+    public static function addErrors(array $errors): void
     {
         $_SESSION['errors'] = $errors;
     }
@@ -37,7 +37,7 @@ class Session
         return $errors;
     }
 
-    public static function setMessage(string $key, string $message): void
+    public static function addMessage(string $key, string $message): void
     {
         $_SESSION['messages'][$key] = $message;
     }
@@ -50,7 +50,7 @@ class Session
         return $message;
     }
 
-    public static function setLogin(string $login): void
+    public static function addLogin(string $login): void
     {
         $_SESSION['login'] = $login;
     }

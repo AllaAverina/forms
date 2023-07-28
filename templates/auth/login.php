@@ -35,7 +35,7 @@ use Forms\Helpers\Token;
 
                         <div class="row mb-2 justify-content-center">
                             <div class="col-md-8">
-                                <div class="g-recaptcha" data-sitekey="6Lc-KFYnAAAAAKFS8JkxVa_hIoagagHSTTp6oC6_"></div>
+                                <div class="g-recaptcha" data-sitekey="<?= $site_key ?>"></div>
                                 <strong class="text-danger"><?= $errors['recaptcha'] ?? '' ?></strong>
                             </div>
                         </div>

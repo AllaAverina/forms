@@ -23,6 +23,9 @@ class Container
             'mysqlConfig' => function () {
                 return (require __DIR__ . '/../../config/config.php')['mysql'];
             },
+            'captchaConfig' => function () {
+                return (require __DIR__ . '/../../config/config.php')['captcha'];
+            },
             'routes' => function () {
                 return require __DIR__ . '/../../routes/routes.php';
             },
@@ -47,12 +50,16 @@ class Container
             AuthController::class => function () {
                 return new AuthController(
                     $this->get(UserGateway::class),
+                    $this->get(RegistrationValidator::class),
+                    $this->get(LoginValidator::class),
+                    $this->get('captchaConfig'),
                 );
             },
             ProfileController::class => function () {
                 return new ProfileController(
                     $this->get(UserGateway::class),
                     $this->get(ProfileValidator::class),
+                    $this->get(PasswordValidator::class),
                 );
             },
             MainController::class => function () {

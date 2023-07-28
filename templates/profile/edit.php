@@ -6,6 +6,9 @@ use Forms\Helpers\Token;
 
 <div class="container">
     <div class="row justify-content-center">
+        <div class="col-md-8 mb-3">
+            <a class="link-primary" href="/profile">Профиль</a>
+        </div>
 
         <div class="col-md-8 mb-3">
             <div class="card border-primary my-3">
