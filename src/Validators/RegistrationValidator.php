@@ -2,9 +2,10 @@
 
 namespace Forms\Validators;
 
+use Forms\Interfaces\Validator;
 use Forms\Models\UserGateway;
 
-class RegistrationValidator
+class RegistrationValidator implements Validator
 {
     protected $gateway;
 
@@ -13,15 +14,15 @@ class RegistrationValidator
         $this->gateway = $gateway;
     }
 
-    public function validate(string $name, string $phone, string $email, string $password, string $confirmPassword): array
+    public function validate(array $data): array
     {
         $errors = [];
 
-        $errors['name'] = $this->validateName($name);
-        $errors['phone'] = $this->validatePhone($phone);
-        $errors['email'] = $this->validateEmail($email);
-        $errors['password'] = $this->validatePassword($password);
-        $errors['confirmPassword'] = $this->confirmPassword($password, $confirmPassword);
+        $errors['name'] = $this->validateName($data['name']);
+        $errors['phone'] = $this->validatePhone($data['phone']);
+        $errors['email'] = $this->validateEmail($data['email']);
+        $errors['password'] = $this->validatePassword($data['password']);
+        $errors['confirmPassword'] = $this->confirmPassword($data['password'], $data['confirmPassword']);
 
         return $errors;
     }

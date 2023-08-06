@@ -8,8 +8,7 @@ use Forms\Helpers\Route;
 use Forms\Helpers\Token;
 use Forms\Models\User;
 use Forms\Models\UserGateway;
-use Forms\Validators\RegistrationValidator;
-use Forms\Validators\LoginValidator;
+use Forms\Interfaces\Validator;
 
 class AuthController
 {
@@ -20,8 +19,8 @@ class AuthController
 
     public function __construct(
         UserGateway $gateway,
-        RegistrationValidator $registrationValidator,
-        LoginValidator $loginValidator,
+        Validator $registrationValidator,
+        Validator $loginValidator,
         array $captchaConfig
     ) {
         $this->gateway = $gateway;
@@ -52,7 +51,7 @@ class AuthController
             'confirmPassword' => trim(strval($_POST['confirm_password'] ?? '')),
         ];
 
-        $errors = $this->registrationValidator->validate(...$userdata);
+        $errors = $this->registrationValidator->validate($userdata);
 
         if (array_filter($errors)) {
             Session::addInputValues($userdata);
@@ -91,7 +90,7 @@ class AuthController
         $login = trim(strval($_POST['login'] ?? ''));
         $password = trim(strval($_POST['password'] ?? ''));
 
-        $errors = $this->loginValidator->validate($login,  $password);
+        $errors = $this->loginValidator->validate([$login,  $password]);
 
         if (array_filter($errors)) {
             Session::addInputValues(['login' => $login]);

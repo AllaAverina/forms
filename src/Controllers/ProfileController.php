@@ -7,8 +7,7 @@ use Forms\Helpers\Session;
 use Forms\Helpers\Route;
 use Forms\Helpers\Token;
 use Forms\Models\UserGateway;
-use Forms\Validators\ProfileValidator;
-use Forms\Validators\PasswordValidator;
+use Forms\Interfaces\Validator;
 
 class ProfileController
 {
@@ -18,8 +17,8 @@ class ProfileController
 
     public function __construct(
         UserGateway $gateway,
-        ProfileValidator $profileValidator,
-        PasswordValidator $passwordValidator,
+        Validator $profileValidator,
+        Validator $passwordValidator,
     ) {
         $this->gateway = $gateway;
         $this->profileValidator = $profileValidator;
@@ -77,7 +76,7 @@ class ProfileController
             'email' => trim(strval($_POST['email'] ?? '')),
         ];
 
-        $errors = $this->profileValidator->validate(...$userdata);
+        $errors = $this->profileValidator->validate($userdata);
 
         if (array_filter($errors)) {
             Session::addErrors($errors);
@@ -111,7 +110,7 @@ class ProfileController
             Route::back();
         }
 
-        $errors = $this->passwordValidator->validate($currentPassword, $password, $confirmPassword);
+        $errors = $this->passwordValidator->validate([$currentPassword, $password, $confirmPassword]);
 
         if (array_filter($errors)) {
             Session::addErrors($errors);

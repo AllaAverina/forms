@@ -2,14 +2,16 @@
 
 namespace Forms\Validators;
 
-class PasswordValidator
+use Forms\Interfaces\Validator;
+
+class PasswordValidator implements Validator
 {
-    public function validate(string $currentPassword, string $password, string $confirmPassword): array
+    public function validate(array $data): array
     {
         $errors = [];
 
-        $errors['newPassword'] = $this->validatePassword($password, $currentPassword);
-        $errors['confirmPassword'] = $this->confirmPassword($password, $confirmPassword);
+        $errors['newPassword'] = $this->validatePassword($data['password'], $data['currentPassword']);
+        $errors['confirmPassword'] = $this->confirmPassword($data['password'], $data['confirmPassword']);
 
         return $errors;
     }
